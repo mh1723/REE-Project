@@ -10,3 +10,7 @@
 <li>Renamed sub_434EB0 to openInputFile as refered to in Main_Student.cpp</li>
 <li>Renamed sub_434A20 to decryptText as refered to in Main_Student.cpp</li>li>
 </ol>
+<h2> 10/23/2016</h2>
+<ol>
+<li> Previous Notes were for the wrong project file.  Thankfully locations for the two functions were the same. Repeating work from above on new PE file.</li>
+</ol>
