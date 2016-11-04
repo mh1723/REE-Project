@@ -28,17 +28,24 @@
 	<li> Pretty sure function sub_43E230 at 00434EF1 is printf.  Renamed</li>
 	<li> function sub_0043DD20 at 00434A9B is probably a call to memset. Renamed </li>
 	<li> Not sure what the call at 00434AB3 is doing, but I think it may be fread or mmap or something similiar.  On return, the value is %$2TTSkjshdfo9087@, which is the start of the encrypted.txt file.</li>
-	<li>the call at 00434AC2 sends the above ptr as param.  The return is 13. This is probable strlen.  The program then comapes this value to 1 and 256.  If below 1 or above 2556, print error, password is to long.</li>
+	<li> The call at 00434AC2 sends the above ptr as param.  The return is 0x13 which is 19 (the length of the ptr). This is probably strlen.  The program then compares this value to 1 and 256.  If below 1 or above 256, print error.</li>
 	<li> Stopped at loc_434B03: </li>
 </ol>
 <h2> 11/01/2016</h2>
 <ol>
 <li> After reading through the call at 00434AC2, pretty sure that is strlen.  Renamed </li>
-<li> ebp+154 holds the length of the password.</li>
+<li> ebp+154 holds the byte length of the password.</li>
 <li> loc_434B03 has to do with hashing - need to look at this</li>
 <li> Renamed call at 00434B73 to malloc</li>
 <li> ebp+160 contains the number of bytes to allocate and ebp+114 is the pointer to the allocated space </li>
 <li> arg0 is the pointer to the encrypted.txt file</li>
 <li> started going thru the call at 00434AB3.  It does refer to fgets - but it also does some comparisions.  I think it's looking for
 the password in the file by looking if it starts with %$2 and ends with 7.  I'm tired.  Going to sleep.</li>
+</ol>
+<h2> 11/03/2016</h2>
+<ol>
+<li>looking at call to sub_433153 at break point 00434B37.  Signature is siminiar to ret = func(0, fp, len_pass-1, buf), where fp is the pointer to the encrypted.txt file, len_pass-1 is the length of the password -1, and buf is a pointer to a local variable that hasn't been used yet.  </li>
+<li>Immediatly after pushing ebp and moving esp into ebp, apon entering the function calls sub_432483 with a value stored in eax (not pushed to stack).  It does some address arithmetic in a loop using the value in eax as a counter of sorts.  Not sure what's happening.  No return value.  esp has chaned, difference between ebp and esp is the value pushed into eax.  This call is some funky way of making room on the stack for local variables.</li>
+<li> Nest, it checks if the first arg was 0.  If so, it calls memset(buf, 0, 64).  If not, it looks like it opens the file in rb mode and reads arg_0 bytes.  Either way arg_0 get stored in local variable vaar_C. </li>
+<li> Next (at 0043BFFF) it calls sub_432A55 with a pointer to a local variable as a parameter.  This is where I stop for now.  Been at the office for 10 hours, think my butt may be rooted to this chair. Need to go home.</li>
 </ol>
