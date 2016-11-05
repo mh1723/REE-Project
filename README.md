@@ -39,8 +39,7 @@
 <li> Renamed call at 00434B73 to malloc</li>
 <li> ebp+160 contains the number of bytes to allocate and ebp+114 is the pointer to the allocated space </li>
 <li> arg0 is the pointer to the encrypted.txt file</li>
-<li> started going thru the call at 00434AB3.  It does refer to fgets - but it also does some comparisions.  I think it's looking for
-the password in the file by looking if it starts with %$2 and ends with 7.  I'm tired.  Going to sleep.</li>
+<li> started going thru the call at 00434AB3.  It does refer to fgets - but it also does some comparisions. (got back to this on 11/05 - it is fgets)  I'm tired.  Going to sleep.</li>
 </ol>
 <h2> 11/03/2016</h2>
 <ol>
@@ -48,4 +47,14 @@ the password in the file by looking if it starts with %$2 and ends with 7.  I'm 
 <li>Immediatly after pushing ebp and moving esp into ebp, apon entering the function calls sub_432483 with a value stored in eax (not pushed to stack).  It does some address arithmetic in a loop using the value in eax as a counter of sorts.  Not sure what's happening.  No return value.  esp has chaned, difference between ebp and esp is the value pushed into eax.  This call is some funky way of making room on the stack for local variables.</li>
 <li> Nest, it checks if the first arg was 0.  If so, it calls memset(buf, 0, 64).  If not, it looks like it opens the file in rb mode and reads arg_0 bytes.  Either way arg_0 get stored in local variable vaar_C. </li>
 <li> Next (at 0043BFFF) it calls sub_432A55 with a pointer to a local variable as a parameter.  This is where I stop for now.  Been at the office for 10 hours, think my butt may be rooted to this chair. Need to go home.</li>
+</ol>
+<h2> 11/05/2016</h2>
+<ol>
+<li>sub_434FE0 (jmp point from sub_432A55) loads 00 00 00 00 00 00 00 00 67 e6 09 6a 85 ae 67 bb 72 f3 6e 3c 3a f5 4f a5 7f 52 0e 51 8c 68 05 9b ab d9 83 1f 19 cd e0 5b  into eax and returns</li>
+<li>Was looking back on fopen and ended up at the function call at t00434AB3 - stated to go  thru that - found "fgets" in there - so remamed this unknow function as fgets.  I was pretty sure it was reading the file and knew it wasn't fread based on  the parameters.</li>
+<li>Ok... So it looks like sub_43BF80 is calling sha256 - got to a point in Windbg where I was no longer in any recongnizable code - so I took a look at the sha256 cpp, and found that the call to sub_432A55 returned the sha256_starts stuff.  So remaing sub_432A55, and that means that var_7C is a sha256_context structure.  This also means that the call to sub_433153 at 00434B37 is calling sha256(char *fileName, char *dataBuffer, DWORD dataLength, unsigned char sha256sum[32]) with sha256(0, fp, passlength, sha256sum[32]).  so var_13C in dcryptText is the sha 256 sum. COOL! That was a crazy function to run through.  Giant loop, lots of jumping around.  So glad that's not something we have to reverse.</li>
+<li></li>
+<li></li>
+<li></li>
+<li></li>
 </ol>
