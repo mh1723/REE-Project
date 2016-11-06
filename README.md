@@ -9,7 +9,7 @@
 	<li>Ran program in WinDbg without arguments, got error output "Error – Could not open input file ..."</li>
 	<li>Searched for error string in Ida Pro, found at 498D80.  Referenced by sub_434EB0.  Followed link.</li>
 	<li>Renamed sub_434EB0 to openInputFile as refered to in Main_Student.cpp</li>
-	<li>Renamed sub_434A20 to decryptText as refered to in Main_Student.cpp</li>li>
+	<li>Renamed sub_434A20 to decryptText as refered to in Main_Student.cpp</li>
 </ol>
 
 <h2> 10/23/2016</h2>
@@ -53,8 +53,10 @@
 <li>sub_434FE0 (jmp point from sub_432A55) loads 00 00 00 00 00 00 00 00 67 e6 09 6a 85 ae 67 bb 72 f3 6e 3c 3a f5 4f a5 7f 52 0e 51 8c 68 05 9b ab d9 83 1f 19 cd e0 5b  into eax and returns</li>
 <li>Was looking back on fopen and ended up at the function call at t00434AB3 - stated to go  thru that - found "fgets" in there - so remamed this unknow function as fgets.  I was pretty sure it was reading the file and knew it wasn't fread based on  the parameters.</li>
 <li>Ok... So it looks like sub_43BF80 is calling sha256 - got to a point in Windbg where I was no longer in any recongnizable code - so I took a look at the sha256 cpp, and found that the call to sub_432A55 returned the sha256_starts stuff.  So remaing sub_432A55, and that means that var_7C is a sha256_context structure.  This also means that the call to sub_433153 at 00434B37 is calling sha256(char *fileName, char *dataBuffer, DWORD dataLength, unsigned char sha256sum[32]) with sha256(0, fp, passlength, sha256sum[32]).  so var_13C in dcryptText is the sha 256 sum. COOL! That was a crazy function to run through.  Giant loop, lots of jumping around.  So glad that's not something we have to reverse.</li>
-<li></li>
-<li></li>
-<li></li>
-<li></li>
+<li>I've noted that often at the start of a function the compiler fills the space on the stack that was allocated to local variables with 0xCC....  Read up on this, and it seems that the program was compiled in debug mode! (http://stackoverflow.com/questions/370195/when-and-why-will-an-os-initialise-memory-to-0xcd-0xdd-etc-on-malloc-free-new)  So hte mov ecx, ## mov eax, 0xCCC...h rep stosd appears.  No a big deal - skip it when you see it.</li>
+<li> Cleaned up some of the comments in ida </li>
+<li> Starting writing the code for decryptText in Main_Students.cpp.  Got to the call to sha256. So far every thing is checking out.</li>
+<li>function call at 00434BC3 seems to be calling fread (follow the jmps a bit to get there)  Making var_114 the fileBuffer.  Added cpp code to malloc the fileBuf and read file.</li>
+<li>00434BCB is the start of a for loop, using var_16C as a counter.</li>
+<li> This for loop seems to be changing char by char the values in fileBuf.  It runs thru 3 function calls and an xor (one of two xors depending on the counter).  I outlined the calls to these functions, and set up the code in cpp.  In the xor block - its using two variables that (as far as I can tell, are not initialized).  Stopping for now, but need to pick up at break point 00434BE6.</li>
 </ol>
