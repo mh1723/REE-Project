@@ -143,12 +143,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\Main_Students.cpp" />
-    <ClCompile Include="..\..\..\Sha-256\SHA-256.cpp" />
+    <ClCompile Include="Main_Students.cpp" />
+    <ClCompile Include="SHA-256.cpp" />
     <ClCompile Include="Test_Main_Students.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\Sha-256\SHA-256.h" />
+    <ClInclude Include="SHA-256.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

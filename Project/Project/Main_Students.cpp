@@ -18,91 +18,111 @@ int sha256(char *fileName, char *dataBuffer, DWORD dataLength, unsigned char sha
 // this function is actually the answer - when completed!
 int encryptFile(FILE *fptr, char *password)
 {
-	char *buffer;
-	BYTE pwdHash[32];
+   char *buffer;
+   BYTE pwdHash[32];
 
-	FILE *fptrOut;
-	DWORD passwordLength, filesize, i;
-	int resulti, pwdHashIndx;
+   FILE *fptrOut;
+   DWORD passwordLength, filesize, i;
+   int resulti, pwdHashIndx;
 
-	filesize = _filelength(_fileno(fptr));
-	if(filesize > 0x100000)	// 1 MB, file too large
-	{
-		fprintf(stderr, "Error - Input file too large.\n\n");
-		return -1;
-	}
+   filesize = _filelength(_fileno(fptr));
+   if (filesize > 0x100000)	// 1 MB, file too large
+   {
+      fprintf(stderr, "Error - Input file too large.\n\n");
+      return -1;
+   }
 
-	passwordLength = (size_t) strlen(password);
+   passwordLength = (size_t)strlen(password);
 
-	if(passwordLength == 0 || passwordLength >= 256)
-	{
-		fprintf(stderr, "Error - Password is too long!\n\n");
-		return -1;
-	}
+   if (passwordLength == 0 || passwordLength >= 256)
+   {
+      fprintf(stderr, "Error - Password is too long!\n\n");
+      return -1;
+   }
 
-	resulti = sha256(NULL, password, passwordLength, pwdHash);
-	if(resulti != 0)
-	{
-		fprintf(stderr, "Error - Password not hashed correctly.\n\n");
-		return -1;
-	}
+   resulti = sha256(NULL, password, passwordLength, pwdHash);
+   if (resulti != 0)
+   {
+      fprintf(stderr, "Error - Password not hashed correctly.\n\n");
+      return -1;
+   }
 
-	// use the password hash to encrypt
-	buffer = (char *) malloc(filesize);
-	if(buffer == NULL)
-	{
-		fprintf(stderr, "Error - Could not allocate %d bytes of memory on the heap.\n\n", filesize);
-		return -1;
-	}
+   // use the password hash to encrypt
+   buffer = (char *)malloc(filesize);
+   if (buffer == NULL)
+   {
+      fprintf(stderr, "Error - Could not allocate %d bytes of memory on the heap.\n\n", filesize);
+      return -1;
+   }
 
-	fread(buffer, 1, filesize, fptr);	// should read entire file
+   fread(buffer, 1, filesize, fptr);	// should read entire file
 
-	////////////////////////////////////////////////////////////////////////////////////
-	// INSERT ENCRYPTION CODE HERE
-	////////////////////////////////////////////////////////////////////////////////////
+                                       ////////////////////////////////////////////////////////////////////////////////////
+                                       // INSERT ENCRYPTION CODE HERE
+                                       ////////////////////////////////////////////////////////////////////////////////////
 
-	fptrOut = fopen("encrypted.txt", "wb+");
-	if(fptrOut == NULL)
-	{
-		fprintf(stderr, "Error - Could not open output file.\n\n");
-		free(buffer);
-		return -1;
-	}
+   fptrOut = fopen("encrypted.txt", "wb+");
+   if (fptrOut == NULL)
+   {
+      fprintf(stderr, "Error - Could not open output file.\n\n");
+      free(buffer);
+      return -1;
+   }
 
-	////////////////////////////////////////////////////////////////////////////////////
-	// INSERT OUTPUT FILE WRITING CODE HERE
-	////////////////////////////////////////////////////////////////////////////////////
+   ////////////////////////////////////////////////////////////////////////////////////
+   // INSERT OUTPUT FILE WRITING CODE HERE
+   ////////////////////////////////////////////////////////////////////////////////////
 
-	fclose(fptrOut);
-	return 0;
+   fclose(fptrOut);
+   return 0;
 } // encryptFile
 
 FILE *openInputFile(char *filename)
 {
-	FILE *fptr;
+   FILE *fptr;
 
-	fptr = fopen(filename, "rb");
-	if(fptr == NULL)
-	{
-		fprintf(stderr, "Error - Could not input file %s!\n\n", filename);
-		exit(-1);
-	}
+   fptr = fopen(filename, "rb");
+   if (fptr == NULL)
+   {
+      fprintf(stderr, "Error - Could not input file %s!\n\n", filename);
+      exit(-1);
+   }
 
-	return fptr;
+   return fptr;
 } // openInputFile
 
 char func1(char c) {
-   // TODO
-   return c;
+   char x, y, z, w;
+   x = (c & 0x0C0) >> 2;
+   y = (c & 0x003) << 2;
+   z = (c << 2) & 0x0C0;
+   w = (c >> 2) & 0x003;
+
+   z = x | z | y | w;
+   return z;
 }
 
 char func2(char c) {
-   // TODO
-   return c;
+   char x, y;
+
+   x = c << 4;
+   y = (c >> 4) & 0x00F;
+   x = x + y;
+
+   return x;
 }
 
-char func3(char c) {
-   // TODO
+char func3(char c, short n) {
+   // ??? 
+   char x;
+   char y;
+   if (n == 1) {
+      y = n & 1;
+      y <<= 7;
+   }
+   else {
+
+   }
    return c;
 }
 
@@ -115,7 +135,7 @@ int decryptFile(FILE *fp) {
    unsigned int passwdLength;
    unsigned char sha256sum[32];
    char passwd[256];
-   
+
    // get the length of the file, check that it is not too long
    fileLength = _filelength(_fileno(fp));
    if (fileLength > 0x100000) {
@@ -137,7 +157,7 @@ int decryptFile(FILE *fp) {
    // zero terminate (chopping off that last byte ?)
    passwdLength -= 1;
    passwd[passwdLength] = '\0';
-   
+
    // get the sha256sum of the password
    sha256return = sha256(NULL, passwd, passwdLength, sha256sum);
    if (sha256return != 0) {
@@ -161,7 +181,7 @@ int decryptFile(FILE *fp) {
       // pass 2
       fileBuf[fileBufOffset] = func2(fileBuf[fileBufOffset]);
       // pass 3
-      fileBuf[fileBufOffset] = func3(fileBuf[fileBufOffset]);
+      fileBuf[fileBufOffset] = func3(fileBuf[fileBufOffset], 0);
       // xor
       if (fileBufOffset & 4) {
 
@@ -169,7 +189,7 @@ int decryptFile(FILE *fp) {
       else {
 
       }
-        
+
 
    }
    return 0;
@@ -180,23 +200,23 @@ int decryptFile(FILE *fp) {
 
 void main_Student(int argc, char *argv[])
 {
-	FILE *fptr;
+   FILE *fptr;
 
-	if(argc < 3)
-	{
-		fprintf(stderr, "\n\nTo encrypt, you must enter the file to encrypt followed by the password.\n\n");
-		fprintf(stderr, "%s filename password\n\n", argv[0]);
-		exit(0);
-	}
+   if (argc < 3)
+   {
+      fprintf(stderr, "\n\nTo encrypt, you must enter the file to encrypt followed by the password.\n\n");
+      fprintf(stderr, "%s filename password\n\n", argv[0]);
+      exit(0);
+   }
 
-	//fptr = openInputFile(argv[1]);
-	//encryptFile(fptr, argv[2]);
-	//fclose(fptr);
+   //fptr = openInputFile(argv[1]);
+   //encryptFile(fptr, argv[2]);
+   //fclose(fptr);
 
-	fptr = openInputFile("encrypted.txt");
+   fptr = openInputFile("encrypted.txt");
 
-	decryptFile(fptr);
-	fclose(fptr);
-	return;
+   decryptFile(fptr);
+   fclose(fptr);
+   return;
 } // main
 
