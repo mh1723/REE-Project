@@ -60,3 +60,7 @@
 <li>00434BCB is the start of a for loop, using var_16C as a counter.</li>
 <li> This for loop seems to be changing char by char the values in fileBuf.  It runs thru 3 function calls and an xor (one of two xors depending on the counter).  I outlined the calls to these functions, and set up the code in cpp.  In the xor block - its using two variables that (as far as I can tell, are not initialized).  Stopping for now, but need to pick up at break point 00434BE6.</li>
 </ol>
+<h2> 11/06/2016</h2>
+<ol>
+<li>Worked on func1 and func2.  No too bad, still need to check if output matches the debugger.  func3 is something else.  I'll come back to that - or ask JO a question.</li>
+</ol>
