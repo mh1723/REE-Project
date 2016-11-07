@@ -115,15 +115,21 @@ char func2(char c) {
 char func3(char c, short n) {
    // ??? 
    char x;
-   char y;
+   int y;
    if (n == 1) {
       y = n & 1;
       y <<= 7;
+      // not sure what happens next
    }
    else {
-
+      y = c & 0x080;
+      y &= y;
+      if (y != 0)
+         y = 1;
+      x = c << 1;
+      x |= y;
    }
-   return c;
+   return x;
 }
 
 // reveersing 
@@ -183,14 +189,14 @@ int decryptFile(FILE *fp) {
       // pass 3
       fileBuf[fileBufOffset] = func3(fileBuf[fileBufOffset], 0);
       // xor
-      if (fileBufOffset & 4) {
-
+      if ((fileBufOffset & 0x04) != 0) {
+            fileBuf[fileBufOffset] = fileBuf[fileBufOffset] ^ sha256sum[19];
       }
       else {
-
+         fileBuf[fileBufOffset] = fileBuf[fileBufOffset] ^ sha256sum[12];
       }
 
-
+      
    }
    return 0;
 }

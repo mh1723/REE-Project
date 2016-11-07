@@ -63,4 +63,6 @@
 <h2> 11/06/2016</h2>
 <ol>
 <li>Worked on func1 and func2.  No too bad, still need to check if output matches the debugger.  func3 is something else.  I'll come back to that - or ask JO a question.</li>
+<li> So... func3 has two modes.  We have a hard coded 0.  I went ahead and programmed the 0 option (not a problem - still have to figure out what the other one does.). </li>
+<li> I figured out the xor business as the end, just stepped thru windbg to verify.  Got the dcrypt function programmed.  Looks good.  Sucessfully decrypts the text.  Now we have to invert the decryption. Cheers!</li>
 </ol>
