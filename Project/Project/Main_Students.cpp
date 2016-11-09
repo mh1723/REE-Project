@@ -15,6 +15,49 @@
 
 int sha256(char *fileName, char *dataBuffer, DWORD dataLength, unsigned char sha256sum[32]);
 
+char func1(char c) {
+   char x, y, z, w;
+   x = (c & 0x0C0) >> 2;
+   y = (c & 0x003) << 2;
+   z = (c << 2) & 0x0C0;
+   w = (c >> 2) & 0x003;
+
+   z = x | z | y | w;
+   return z;
+}
+
+
+char func2(char c) {
+   char x, y;
+
+   x = c << 4;
+   y = (c >> 4) & 0x00F;
+   x = x + y;
+
+   return x;
+}
+
+char func3(char c, short n) {
+   // ??? 
+   char x;
+   char y;
+   if (n == 1) {
+      y = c & 1;
+      y = (char) ((int)y << 7);
+      x = c/2 ;
+      x |= y;
+   }
+   else {
+      y = c & 0x080;
+      if (y&y)
+         y = 0x01;
+      x = c << 1;
+      x |= y;
+   }
+   
+   return x;
+}
+
 // this function is actually the answer - when completed!
 int encryptFile(FILE *fptr, char *password)
 {
@@ -57,9 +100,21 @@ int encryptFile(FILE *fptr, char *password)
 
    fread(buffer, 1, filesize, fptr);	// should read entire file
 
-                                       ////////////////////////////////////////////////////////////////////////////////////
-                                       // INSERT ENCRYPTION CODE HERE
-                                       ////////////////////////////////////////////////////////////////////////////////////
+   ////////////////////////////////////////////////////////////////////////////////////
+   // INSERT ENCRYPTION CODE HERE
+   ////////////////////////////////////////////////////////////////////////////////////
+   // for each byte in the buffer, we apply a three pass dcryption, and an xor (one of two depending on the count)
+   for (i = 0; i < filesize - (passwordLength + 1); i++) {
+      buffer[i] = func1(buffer[i]);
+      buffer[i] = func2(buffer[i]);
+      buffer[i] = func3(buffer[i], 1);
+      if ((i & 0x04) != 0) {
+         buffer[i] = buffer[i] ^ pwdHash[19];
+      }
+      else {
+         buffer[i] = buffer[i] ^ pwdHash[12];
+      }
+   }
 
    fptrOut = fopen("encrypted.txt", "wb+");
    if (fptrOut == NULL)
@@ -72,6 +127,9 @@ int encryptFile(FILE *fptr, char *password)
    ////////////////////////////////////////////////////////////////////////////////////
    // INSERT OUTPUT FILE WRITING CODE HERE
    ////////////////////////////////////////////////////////////////////////////////////
+   fwrite(pwdHash, 1, 256, fptrOut);
+   fwrite(buffer, 1, filesize, fptrOut);
+
 
    fclose(fptrOut);
    return 0;
@@ -91,46 +149,8 @@ FILE *openInputFile(char *filename)
    return fptr;
 } // openInputFile
 
-char func1(char c) {
-   char x, y, z, w;
-   x = (c & 0x0C0) >> 2;
-   y = (c & 0x003) << 2;
-   z = (c << 2) & 0x0C0;
-   w = (c >> 2) & 0x003;
 
-   z = x | z | y | w;
-   return z;
-}
 
-char func2(char c) {
-   char x, y;
-
-   x = c << 4;
-   y = (c >> 4) & 0x00F;
-   x = x + y;
-
-   return x;
-}
-
-char func3(char c, short n) {
-   // ??? 
-   char x;
-   int y;
-   if (n == 1) {
-      y = n & 1;
-      y <<= 7;
-      // not sure what happens next
-   }
-   else {
-      y = c & 0x080;
-      y &= y;
-      if (y != 0)
-         y = 1;
-      x = c << 1;
-      x |= y;
-   }
-   return x;
-}
 
 // reveersing 
 int decryptFile(FILE *fp) {
@@ -141,6 +161,7 @@ int decryptFile(FILE *fp) {
    unsigned int passwdLength;
    unsigned char sha256sum[32];
    char passwd[256];
+   FILE *fptrOut;
 
    // get the length of the file, check that it is not too long
    fileLength = _filelength(_fileno(fp));
@@ -194,10 +215,20 @@ int decryptFile(FILE *fp) {
       }
       else {
          fileBuf[fileBufOffset] = fileBuf[fileBufOffset] ^ sha256sum[12];
-      }
-
-      
+      }     
    }
+
+   fptrOut = fopen("decrypted.txt", "wb+");
+   if (fptrOut == NULL)
+   {
+      fprintf(stderr, "Error - Could not open output file.\n\n");
+      free(fileBuf);
+      return -1;
+   }
+
+   fwrite(fileBuf, 1, fileLength, fptrOut);
+   fclose(fptrOut);
+
    return 0;
 }
 
@@ -215,12 +246,11 @@ void main_Student(int argc, char *argv[])
       exit(0);
    }
 
-   //fptr = openInputFile(argv[1]);
-   //encryptFile(fptr, argv[2]);
-   //fclose(fptr);
+   fptr = openInputFile(argv[1]);
+   encryptFile(fptr, argv[2]);
+   fclose(fptr);
 
    fptr = openInputFile("encrypted.txt");
-
    decryptFile(fptr);
    fclose(fptr);
    return;
